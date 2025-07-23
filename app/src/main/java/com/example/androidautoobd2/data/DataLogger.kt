@@ -14,6 +14,7 @@ class DataLogger {
     private val dataPoints = mutableListOf<VehicleData>()
     private var sessionStartTime: Long = 0
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
+    private var sessionCount = 0
 
     enum class ExportFormat {
         JSON, CSV
@@ -22,6 +23,7 @@ class DataLogger {
     fun startNewSession() {
         dataPoints.clear()
         sessionStartTime = System.currentTimeMillis()
+        sessionCount++
     }
 
     fun logData(data: VehicleData) {
@@ -77,5 +79,22 @@ class DataLogger {
                 )
             }
         }
+    }
+
+    fun getSessionCount(): Int = sessionCount
+
+    fun clearLogs() {
+        dataPoints.clear()
+        sessionCount = 0
+    }
+
+    fun getCurrentDataPoints(): List<VehicleData> = dataPoints.toList()
+
+    fun getDataPointCount(): Int = dataPoints.size
+
+    fun getSessionDuration(): Long {
+        return if (sessionStartTime > 0) {
+            System.currentTimeMillis() - sessionStartTime
+        } else 0
     }
 }

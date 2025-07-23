@@ -1,7 +1,9 @@
+package com.example.androidautoobd2.car.screens
+
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.*
-import androidx.car.app.CarToast // Import CarToast
+import androidx.car.app.CarToast
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
