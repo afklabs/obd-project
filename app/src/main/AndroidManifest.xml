@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <!-- CRITICAL: Android Auto permission -->
+    <!-- Android Auto permission -->
     <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
 
     <!-- Feature declarations -->
@@ -29,16 +29,19 @@
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.AndroidAutoOBD2"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        tools:targetApi="31">
 
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -50,7 +53,7 @@
                 android:value="true" />
         </activity>
 
-        <!-- FIXED: Android Auto Service with REQUIRED metadata -->
+        <!-- Android Auto Service -->
         <service
             android:name=".car.OBDCarAppService"
             android:exported="true"
@@ -61,7 +64,7 @@
                 <category android:name="androidx.car.app.category.IOT" />
             </intent-filter>
 
-            <!-- ADD THIS LINE - This is what's missing! -->
+            <!-- Required metadata for Android Auto -->
             <meta-data
                 android:name="androidx.car.app.minCarApiLevel"
                 android:value="1" />

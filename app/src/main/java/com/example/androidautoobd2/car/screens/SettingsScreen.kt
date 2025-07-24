@@ -40,9 +40,10 @@ class SettingsScreen(carContext: CarContext) : Screen(carContext) {
             listBuilder.addItem(
                 Row.Builder()
                     .setTitle(parameter.name)
+                    .addText("${parameter.unit} | ${if (isEnabled) "Enabled" else "Disabled"}")
                     .setToggle(
-                        Toggle.Builder {
-                            preferencesManager.setParameterEnabled(parameter.pid, it)
+                        Toggle.Builder { enabled ->
+                            preferencesManager.setParameterEnabled(parameter.pid, enabled)
                             invalidate()
                         }
                             .setChecked(isEnabled)
@@ -67,6 +68,13 @@ class SettingsScreen(carContext: CarContext) : Screen(carContext) {
             listBuilder.addItem(
                 Row.Builder()
                     .setTitle("$freq ms")
+                    .addText(when (freq) {
+                        500 -> "Fast updates (more CPU usage)"
+                        1000 -> "Normal updates (recommended)"
+                        2000 -> "Slow updates"
+                        5000 -> "Very slow updates"
+                        else -> ""
+                    })
                     .setOnClickListener {
                         preferencesManager.setUpdateFrequency(freq)
                         screenManager.pop()

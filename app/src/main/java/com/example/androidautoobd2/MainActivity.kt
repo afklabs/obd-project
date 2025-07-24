@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -53,68 +51,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Add demo mode button
-        val demoButton = Button(this).apply {
-            text = "🎮 Start Demo Mode"
-            setOnClickListener {
-                obdManager.setDemoMode(true)
-                setupDemoMode()
-                Toast.makeText(this@MainActivity, "Demo mode activated!", Toast.LENGTH_SHORT).show()
-            }
+        // Demo mode button
+        binding.demoButton.setOnClickListener {
+            obdManager.setDemoMode(true)
+            setupDemoMode()
+            Toast.makeText(this, "Demo mode activated!", Toast.LENGTH_SHORT).show()
         }
 
-        // Add Android Auto instructions button
-        val autoButton = Button(this).apply {
-            text = "🚗 Connect to Android Auto"
-            setOnClickListener {
-                showAndroidAutoInstructions()
-            }
+        // Android Auto instructions button
+        binding.autoButton.setOnClickListener {
+            showAndroidAutoInstructions()
         }
 
-        // Add vehicle data display button
-        val dataButton = Button(this).apply {
-            text = "📊 View Live Data"
-            setOnClickListener {
-                if (obdManager.isConnected || obdManager.isDemoMode) {
-                    startDataDisplay()
-                } else {
-                    Toast.makeText(this@MainActivity, "Please activate demo mode or connect to OBD first", Toast.LENGTH_SHORT).show()
-                }
+        // View live data button
+        binding.dataButton.setOnClickListener {
+            if (obdManager.isConnected || obdManager.isDemoMode) {
+                startDataDisplay()
+            } else {
+                Toast.makeText(this, "Please activate demo mode or connect to OBD first", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Add buttons to the layout dynamically
-        val layout = binding.root as androidx.constraintlayout.widget.ConstraintLayout
-
-        // Demo button constraints
-        layout.addView(demoButton)
-        demoButton.id = androidx.core.view.ViewCompat.generateViewId()
-        val demoParams = demoButton.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        demoParams.topToBottom = binding.instructionText.id
-        demoParams.startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        demoParams.endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        demoParams.topMargin = 32
-        demoButton.layoutParams = demoParams
-
-        // Auto button constraints
-        layout.addView(autoButton)
-        autoButton.id = androidx.core.view.ViewCompat.generateViewId()
-        val autoParams = autoButton.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        autoParams.topToBottom = demoButton.id
-        autoParams.startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        autoParams.endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        autoParams.topMargin = 16
-        autoButton.layoutParams = autoParams
-
-        // Data button constraints
-        layout.addView(dataButton)
-        dataButton.id = androidx.core.view.ViewCompat.generateViewId()
-        val dataParams = dataButton.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-        dataParams.topToBottom = autoButton.id
-        dataParams.startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        dataParams.endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-        dataParams.topMargin = 16
-        dataButton.layoutParams = dataParams
     }
 
     private fun checkPermissions() {
