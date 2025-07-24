@@ -10,11 +10,22 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Android Auto permission -->
+    <!-- Storage permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- CRITICAL: Android Auto permission -->
     <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
 
-    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
-    <uses-feature android:name="android.hardware.type.automotive" android:required="false" />
+    <!-- Feature declarations -->
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -33,11 +44,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- For Android Auto -->
-            <meta-data android:name="distractionOptimized" android:value="true" />
+            <!-- Android Auto metadata for activity -->
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
         </activity>
 
-        <!-- Android Auto Service -->
+        <!-- FIXED: Android Auto Service with REQUIRED metadata -->
         <service
             android:name=".car.OBDCarAppService"
             android:exported="true"
@@ -45,11 +58,16 @@
             android:icon="@mipmap/ic_launcher">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
-                <category android:name="androidx.car.app.category.NAVIGATION" />
+                <category android:name="androidx.car.app.category.IOT" />
             </intent-filter>
+
+            <!-- ADD THIS LINE - This is what's missing! -->
+            <meta-data
+                android:name="androidx.car.app.minCarApiLevel"
+                android:value="1" />
         </service>
 
-        <!-- Android Auto metadata -->
+        <!-- Application-level Android Auto metadata -->
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
