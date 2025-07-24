@@ -92,10 +92,11 @@ class DashboardScreen(carContext: CarContext) : Screen(carContext), DefaultLifec
         val gridItems = mutableListOf<GridItem>()
 
         // DEBUG INFO as first item - FIXED: Use setText() instead of addText()
+        val debugText = "Mode: ${if (obdManager.isDemoMode) "DEMO" else "REAL"} | ${obdManager.getConnectionStatus()}"
         gridItems.add(
             GridItem.Builder()
                 .setTitle("Debug Status")
-                .setText("Mode: ${if (obdManager.isDemoMode) "DEMO" else "REAL"} | ${obdManager.getConnectionStatus()}")
+                .setText(debugText)
                 .setOnClickListener {
                     CarToast.makeText(carContext, debugInfo, CarToast.LENGTH_LONG).show()
                 }

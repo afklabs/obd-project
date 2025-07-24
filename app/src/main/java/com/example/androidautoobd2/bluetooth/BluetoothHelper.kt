@@ -42,7 +42,7 @@ class BluetoothHelper(private val context: Context) {
                         device?.let { discoveredDevice ->
                             try {
                                 // FIXED: Added explicit else branch to satisfy Kotlin compiler
-                                if (checkBluetoothPermissions() && isObdDevice(discoveredDevice)) {
+                                if (hasBluetoothPermissions() && isObdDevice(discoveredDevice)) {
                                     discoveredDevices.add(discoveredDevice)
                                     notifyDevicesFound()
                                 } else {
@@ -76,7 +76,7 @@ class BluetoothHelper(private val context: Context) {
     }
 
     fun startDiscovery(callback: (List<OBDDevice>) -> Unit) {
-        if (!checkBluetoothPermissions()) {
+        if (!hasBluetoothPermissions()) {
             callback(getMockDevices())
             return
         }
@@ -168,7 +168,7 @@ class BluetoothHelper(private val context: Context) {
     private fun notifyDevicesFound() {
         val obdDevices = discoveredDevices.mapNotNull { device ->
             try {
-                val deviceName = if (checkBluetoothPermissions()) {
+                val deviceName = if (hasBluetoothPermissions()) {
                     device.name ?: "Unknown Device"
                 } else {
                     "Unknown Device"
@@ -193,7 +193,8 @@ class BluetoothHelper(private val context: Context) {
         discoveryCallback?.invoke(devicesToReturn)
     }
 
-    private fun getMockDevices(): List<OBDDevice> {
+    // FIXED: Make getMockDevices() public so it can be called from ConnectionScreen
+    fun getMockDevices(): List<OBDDevice> {
         return listOf(
             OBDDevice("ELM327 v1.5", "00:11:22:33:44:55", true),
             OBDDevice("OBDLink LX", "AA:BB:CC:DD:EE:FF", true),
@@ -204,7 +205,7 @@ class BluetoothHelper(private val context: Context) {
 
     private fun isObdDevice(device: BluetoothDevice): Boolean {
         return try {
-            if (!checkBluetoothPermissions()) {
+            if (!hasBluetoothPermissions()) {
                 return false
             }
             val deviceName = device.name?.lowercase()
@@ -227,7 +228,8 @@ class BluetoothHelper(private val context: Context) {
         }
     }
 
-    private fun checkBluetoothPermissions(): Boolean {
+    // FIXED: Renamed and made public for better error handling
+    fun hasBluetoothPermissions(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_SCAN) ==
                     PackageManager.PERMISSION_GRANTED &&
@@ -243,5 +245,31 @@ class BluetoothHelper(private val context: Context) {
 
     fun isBluetoothEnabled(): Boolean {
         return bluetoothAdapter?.isEnabled == true
+    }
+
+    // FIXED: Added method to get permission status details for debugging
+    fun getPermissionStatus(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val scanPerm = ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED
+            val connectPerm = ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+            "SCAN: $scanPerm | CONNECT: $connectPerm"
+        } else {
+            val btPerm = ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
+            val btAdminPerm = ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED
+            "BT: $btPerm | ADMIN: $btAdminPerm"
+        }
+    }
+
+    // FIXED: Added method to request permissions explanation
+    fun getPermissionExplanation(): String {
+        return if (!hasBluetoothPermissions()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                "Missing BLUETOOTH_SCAN or BLUETOOTH_CONNECT permissions. Please grant in phone settings."
+            } else {
+                "Missing BLUETOOTH or BLUETOOTH_ADMIN permissions. Please grant in phone settings."
+            }
+        } else {
+            "All Bluetooth permissions granted"
+        }
     }
 }

@@ -87,7 +87,7 @@ class ConnectionScreen(carContext: CarContext) : Screen(carContext), DefaultLife
             else -> "❌ Not connected"
         }
 
-        // FIXED: Use single addText() call instead of multiple
+        // FIXED: Combine status info into single text line
         val detailText = "Mode: ${if (obdManager.isDemoMode) "DEMO" else "REAL"} | Status: ${obdManager.getConnectionStatus()}"
 
         listBuilder.addItem(
@@ -148,15 +148,15 @@ class ConnectionScreen(carContext: CarContext) : Screen(carContext), DefaultLife
     }
 
     private fun addDebugInfo(listBuilder: ItemList.Builder) {
-        // FIXED: Combine debug info into fewer text lines for Row.Builder()
+        // FIXED: Combine all debug info into single text line
+        val debugText = "Scans: $scanAttempts | Devices: $devicesFoundCount | Connections: $connectionAttempts | BT: ${bluetoothHelper.isBluetoothEnabled()}"
+
         listBuilder.addItem(
             Row.Builder()
                 .setTitle("📊 Debug Information")
-                .addText("Scans: $scanAttempts | Devices: $devicesFoundCount | Connections: $connectionAttempts")
-                .addText("Bluetooth enabled: ${bluetoothHelper.isBluetoothEnabled()}")
+                .addText(debugText)
                 .setOnClickListener {
-                    val debugMsg = "Bluetooth: ${bluetoothHelper.isBluetoothEnabled()} | Scans: $scanAttempts | Devices: $devicesFoundCount | Connections: $connectionAttempts"
-                    CarToast.makeText(carContext, debugMsg, CarToast.LENGTH_LONG).show()
+                    CarToast.makeText(carContext, debugText, CarToast.LENGTH_LONG).show()
                 }
                 .build()
         )
@@ -173,12 +173,13 @@ class ConnectionScreen(carContext: CarContext) : Screen(carContext), DefaultLife
             discoveredDevices.forEach { device ->
                 val deviceStatus = if (device.isConnectable) "✅ Ready" else "❌ Not responding"
 
-                // FIXED: Combine device info into fewer text lines
+                // FIXED: Combine device info into single text line
+                val deviceInfo = "${device.address} | $deviceStatus"
+
                 listBuilder.addItem(
                     Row.Builder()
                         .setTitle("${device.name}")
-                        .addText("${device.address}")
-                        .addText(deviceStatus)
+                        .addText(deviceInfo)
                         .setOnClickListener {
                             if (device.isConnectable && !isConnecting) {
                                 CarToast.makeText(carContext, "🔗 Attempting to connect to ${device.name}...", CarToast.LENGTH_SHORT).show()
@@ -205,6 +206,26 @@ class ConnectionScreen(carContext: CarContext) : Screen(carContext), DefaultLife
     }
 
     private fun startScan() {
+        // Check permissions first
+        if (!bluetoothHelper.hasBluetoothPermissions()) {
+            CarToast.makeText(carContext, "❌ Bluetooth permissions not granted - using mock devices", CarToast.LENGTH_LONG).show()
+            // Fall back to mock devices when permissions are missing
+            discoveredDevices.clear()
+            discoveredDevices.addAll(bluetoothHelper.getMockDevices())
+            devicesFoundCount = discoveredDevices.size
+            invalidate()
+            return
+        }
+
+        if (!bluetoothHelper.isBluetoothEnabled()) {
+            CarToast.makeText(carContext, "❌ Bluetooth not enabled - using demo devices", CarToast.LENGTH_LONG).show()
+            discoveredDevices.clear()
+            discoveredDevices.addAll(bluetoothHelper.getMockDevices())
+            devicesFoundCount = discoveredDevices.size
+            invalidate()
+            return
+        }
+
         isScanning = true
         scanAttempts++
         CarToast.makeText(carContext, "🔍 Starting scan #$scanAttempts for OBD devices...", CarToast.LENGTH_SHORT).show()

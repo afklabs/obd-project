@@ -9,9 +9,6 @@ import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 
 // Import other screen classes — adjust package paths if needed
-import com.example.androidautoobd2.car.screens.DashboardScreen
-import com.example.androidautoobd2.car.screens.ConnectionScreen
-import com.example.androidautoobd2.car.screens.SettingsScreen
 
 class MainScreen(carContext: CarContext) : Screen(carContext) {
 
